@@ -1,0 +1,124 @@
+env: "maze___maze2d-large-v0"
+term_fn: "no_termination"
+reward_fn: "zero"
+goal_proj_fn: "maze"
+learned_rewards: false
+num_steps: 0
+trial_length: 600
+
+seed: 0
+save_video: true
+
+num_elites: 5
+model_lr: 0.00028
+model_wd: 0.00010
+hidden_size: 200
+model_batch_size: 512
+validation_ratio: 0
+freq_train_model: 600
+patience: 12
+num_epochs_train_model: 12
+initial_exploration: 0
+checkpoint_model_every: 50000
+
+planning_horizon: 15
+cost_discount: 1.0
+cost_aggregation: "n_step"
+cem_num_iters: 3
+cem_elite_ratio: 0.01
+cem_population_size: 400
+cem_alpha: 0.1
+cem_clipped_normal: false
+cem_population_decay_factor: 1.0
+cem_colored_noise_exponent: 3.0
+cem_keep_elite_frac: 0.3
+
+model_load_dir: null
+grow_buffer: false
+train_model: false
+train_model_online: false
+train_model_offline: false
+offline_epochs: 200
+offline_evaluate_every: 101
+training_reward_fn: null
+acting_module: null
+eval_reward_fn: 'distance'
+eval_reward_fns: ['distance', 'graph']
+eval_acting_modules: ['distance']
+
+env_params:
+  compact_goal_space: true
+  fixed_start: true
+
+additional_modules:
+
+  distance: 
+    # architecture
+    _target_: mbrl.modules.DistanceModule
+    device: ${device}
+    gamma: 0.99
+    units: 512
+    lr: 1e-5
+    polyak: 0.995
+    deterministic_actor: true
+    alpha: 0.0
+    p_norm: false
+    target_noise: 0.2
+    target_noise_clip: 0.5
+    policy_delay: 2
+    squash_policy: true
+    # relabeling
+    relabeling: mbold
+    p_geometric: 0.2
+    p_rand_goals: 0.25
+    # ensemble
+    n_ensemble: 1
+    # model-based
+    enable_mbpo: false
+    mbpo_num_updates_before_rollout: 500
+    mbpo_accumulate: true
+    mbpo_num_rollouts: 5000
+    mbpo_rollout_horizon: 5
+    mbpo_buffer_capacity: 1000000
+    mbpo_lambda: 0.0
+    mbpo_batch_size: 512
+    # crr
+    enable_crr: false
+    crr_beta: 1.0
+    crr_n_action_samples: 4
+    crr_advantage_type: mean
+    crr_weight_type: exp
+    crr_max_weight: 20.0
+    # environment
+    obs_dim: ???
+    goal_dim: ???
+    act_dim: ???
+    act_limit: 1.
+    # flags
+    should_train_online: false
+    should_train_offline: true
+    normalize: true
+    normalize_double_precision: true
+
+  graph: 
+    # architecture
+    _target_: mbrl.modules.GraphModule
+    device: ${device}
+    obs_dim: ???
+    goal_dim: ???
+    # graph_params
+    value_estimator: 'distance'
+    threshold: 10
+    min_threshold: 0
+    update_threshold: true
+    buffer_sample_size: 1000
+    density_sampling: true
+    ensure_start_to_goal: true
+    connect_start: true
+    connect_goal: true
+    sorb: false
+    # flags
+    should_train_online: false
+    should_train_offline: false
+    normalize: false
+    normalize_double_precision: false

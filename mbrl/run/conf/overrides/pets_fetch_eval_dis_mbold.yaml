@@ -1,0 +1,123 @@
+env: "fetch___FetchPush-v2"              # environment name
+term_fn: "no_termination"
+reward_fn: "zero"
+goal_proj_fn: "fetch"                    # function mapping observations to goals
+learned_rewards: false
+num_steps: 0                             # number of online interaction with the environment
+trial_length: 50                         # episode length
+
+seed: 0                                  # random seed
+save_video: true                         # whether to save a video of online/evaluation episodes
+
+num_elites: 5                            # elite size for model ensemble
+model_lr: 0.00028                        # model learning rate
+model_wd: 0.00010                        # model weight decay parameter
+hidden_size: 200                         # model hidden size
+model_batch_size: 512                    # model batch size
+validation_ratio: 0                      # ratio of validation data
+freq_train_model: 50                     # number of environment steps between model updates
+patience: 12                             # patience for early stopping
+num_epochs_train_model: 12               # number of epochs per model update
+initial_exploration: 0                   # number of random steps to prefill the buffer
+checkpoint_model_every: 50000            # checkpoint interval
+
+planning_horizon: 15                     # iCEM planning horizon
+cost_discount: 1.0                       # discount for cost function
+cost_aggregation: "n_step"               # cost aggregation function for iCEM
+cem_num_iters: 3                         # iCEM iterations
+cem_elite_ratio: 0.01                    # ratio of samplesfor refitting iCEM distribution
+cem_population_size: 400                 # iCEM budget per iteration
+cem_alpha: 0.1                           # iCEM alpha
+cem_clipped_normal: false                # whether to clip or truncate iCEM distribution
+cem_population_decay_factor: 1.0         # iCEM population decay factor
+cem_colored_noise_exponent: 3.0          # iCEM colored noise exponent
+cem_keep_elite_frac: 0.3                 # ratio of elites carried over at each iteration
+
+model_load_dir: null                     # folder for loading buffer and models
+grow_buffer: false                       # whether to add online transitions to buffer
+train_model: false                       # whether the dynamics model should be trained
+train_model_online: false                # whether the dynamics model should be trained online
+train_model_offline: false               # whether the dynamics model should be trained offline
+offline_epochs: 200                      # number of offline training epochs
+offline_evaluate_every: 101              # offline evaluation interval
+training_reward_fn: null                 # training reward function
+acting_module: null                      # if not null, the act() method of the module is called instead of the planner
+eval_reward_fn: 'distance'               # module that implements reward_fn() for model-based planning evaluation
+eval_reward_fns: ['distance', 'graph']   # modules that implements reward_fn() for model-based planning evaluation
+eval_acting_modules: ['distance']        # modules that implements act() for policy evaluation rollouts
+
+env_params:
+  compact_goal_space: true
+
+additional_modules:
+
+  distance: 
+    # architecture
+    _target_: mbrl.modules.DistanceModule
+    device: ${device}                    # torch device
+    gamma: 0.95                          # discount factor
+    units: 512                           # hidden size for actor and critic
+    lr: 1e-5                             # actor and critic lr
+    polyak: 0.995                        # polyak averaging coefficient
+    deterministic_actor: true            # toggles deterministic policies
+    alpha: 0.0                           # entropy coefficient
+    p_norm: false                        # enables normalization of actor
+    target_noise: 0.2                    # target noise for TD3
+    target_noise_clip: 0.5               # noise threshold for TD3
+    policy_delay: 2                      # critic updates per every policy update
+    squash_policy: true                  # squashes policy with a tanh activation
+    # relabeling
+    relabeling: mbold                    # relabeling scheme
+    p_geometric: 0.2                     # controls temporal distance of sampled goals
+    p_rand_goals: 0.25                   # probability of sampling negative goals
+    # ensemble
+    n_ensemble: 1                        # ensemble size
+    # model-based
+    enable_mbpo: false                   # enables mbpo
+    mbpo_num_updates_before_rollout: 500 # number of gradient steps before sampling trajectories
+    mbpo_accumulate: true                # if true, does not discard previous trajectories in the replay buffer
+    mbpo_num_rollouts: 5000              # number of parallel model rollouts
+    mbpo_rollout_horizon: 5              # rollout horizon
+    mbpo_buffer_capacity: 1000000        # capacity of mbpo buffer
+    mbpo_lambda: 0.0                     # uncertainty penalization for MOPO
+    mbpo_batch_size: 512                 # training batch size                  
+    # crr
+    enable_crr: false                    # enables crr instead of policy gradients
+    crr_beta: 1.0                        # beta parameter from CRR
+    crr_n_action_samples: 4              # number of action samples to maximize advantage
+    crr_advantage_type: mean             # advantage type
+    crr_weight_type: exp                 # weight type
+    crr_max_weight: 20.0                 # weight threshold
+    # environment
+    obs_dim: ???                         # observation size
+    goal_dim: ???                        # goal size
+    act_dim: ???                         # action size
+    act_limit: 1.                        # action space limits
+    # flags
+    should_train_online: false           # enables online training
+    should_train_offline: true           # enables offline training
+    normalize: true                      # normalizes input
+    normalize_double_precision: true     # uses double precision for normalization
+
+  graph: 
+    # architecture
+    _target_: mbrl.modules.GraphModule
+    device: ${device}                    # torch device
+    obs_dim: ???                         # observation size
+    goal_dim: ???                        # goal size
+    # graph_params
+    value_estimator: 'distance'          # module to use for estimating distances
+    threshold: 10                        # log_\gamma V_min
+    min_threshold: 0                     # minimum threshold for pruning the graph
+    update_threshold: true               # updates threshold according to dynamic estimates
+    buffer_sample_size: 1000             # size of the graph
+    density_sampling: true               # enables KDE-based sampling from the buffer
+    ensure_start_to_goal: true           # computes threshold by ensuring connectivity between current state and goal
+    connect_start: true                  # ensures a state for which the value is computed is connected to the graph
+    connect_goal: true                   # ensures a state for which the value is computed is connected to the goal
+    sorb: false                          # replaces graph aggregation as cost function with subgoal commands
+    # flags
+    should_train_online: false           # enables online training
+    should_train_offline: false           # enables offline training
+    normalize: false                      # normalizes input
+    normalize_double_precision: false     # uses double precision for normalization
