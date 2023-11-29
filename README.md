@@ -1,6 +1,6 @@
 # Goal-conditioned Offline Planning from Curious Exploration
 
-This codebase accompanies an anonymous submission to NeurIPS 2023, and the project [website](https://sites.google.com/view/gcopfce).
+This codebase accompanies the [paper](https://arxiv.org/abs/2311.16996) published at NeurIPS 2023, and the project [website](https://sites.google.com/view/gcopfce).
 The codebase borrows its structure, as well as several classes, from [mbrl-lib](https://github.com/facebookresearch/mbrl-lib), to which credit is due.
 
 ## Installation
