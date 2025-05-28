@@ -48,3 +48,14 @@ Further hyperparameters are documented in ``run/conf/overrides/pets_maze_eval_di
 ## Figure 5, 7, 9
 
 A snippet that can be used to generate datapoints for Figures 5,7,9 can be found in ``run/plot.py``.
+
+## BibTeX
+```
+@inproceedings{
+  bagatella2023goalconditioned,
+  title={Goal-conditioned Offline Planning from Curious Exploration},
+  author={Marco Bagatella and Georg Martius},
+  booktitle={Thirty-seventh Conference on Neural Information Processing Systems},
+  year={2023},
+}
+```
